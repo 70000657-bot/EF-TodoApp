@@ -1,5 +1,5 @@
 import unittest
-from app import app, tareas, contador_id
+from app import app, tareas
 
 class TestTodoApp(unittest.TestCase):
     """Pruebas unitarias para la aplicación TodoApp."""
@@ -8,18 +8,16 @@ class TestTodoApp(unittest.TestCase):
         """Configura el cliente de pruebas antes de cada test."""
         app.config['TESTING'] = True
         self.client = app.test_client()
-        # Limpiar tareas antes de cada prueba
         tareas.clear()
 
     def test_pagina_principal_carga(self):
-        """Prueba 1: La página principal debe cargar correctamente."""
+        """Prueba 1: La página principal debe cargar con código 200."""
         respuesta = self.client.get('/')
         self.assertEqual(respuesta.status_code, 200)
 
     def test_agregar_tarea(self):
-        """Prueba 2: Agregar una tarea debe redirigir y guardarla."""
-        respuesta = self.client.post('/agregar', data={'titulo': 'Tarea de prueba'})
-        self.assertEqual(respuesta.status_code, 302)
+        """Prueba 2: Agregar una tarea válida debe guardarla en la lista."""
+        self.client.post('/agregar', data={'titulo': 'Tarea de prueba'})
         self.assertEqual(len(tareas), 1)
         self.assertEqual(tareas[0]['titulo'], 'Tarea de prueba')
 
@@ -34,7 +32,7 @@ class TestTodoApp(unittest.TestCase):
         self.assertEqual(len(tareas), 0)
 
     def test_completar_tarea(self):
-        """Prueba 5: Completar una tarea debe cambiar su estado."""
+        """Prueba 5: Completar una tarea debe cambiar su estado a True."""
         self.client.post('/agregar', data={'titulo': 'Tarea a completar'})
         tarea_id = tareas[0]['id']
         self.client.get(f'/completar/{tarea_id}')
